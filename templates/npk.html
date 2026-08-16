@@ -1,0 +1,357 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(-45deg, #0a4d23, #1a6b3a, #2d8c4f, #1a5e35);
+        background-size: 400% 400%;
+        animation: gradientFlow 15s ease infinite;
+        color: #ffffff;
+    }
+
+    @keyframes gradientFlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .dashboard-wrapper {
+        background: transparent;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .dashboard-title h2 {
+        font-weight: 800;
+        color: white;
+        margin-bottom: 5px;
+    }
+
+    /* NPK Specific Status Cards */
+    .npk-card {
+        background: white;
+        border-radius: 24px;
+        padding: 25px;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .npk-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+    }
+
+    .npk-card:hover { transform: translateY(-5px); }
+
+    .card-n::before { background: #3b82f6; }
+    .card-p::before { background: #22c55e; }
+    .card-k::before { background: #ef4444; }
+
+    .npk-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+    }
+
+    .icon-n { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+    .icon-p { background: rgba(34, 197, 94, 0.1); color: #22c55e; }
+    .icon-k { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+    .npk-label {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        color: #888;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    .npk-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #333;
+    }
+
+    .npk-unit {
+        font-size: 1rem;
+        color: #aaa;
+        font-weight: 500;
+    }
+
+    /* Chart Card */
+    .chart-card {
+        background: white;
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+    }
+
+    .table-card {
+        background: white;
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+    }
+
+    .custom-table th {
+        border-top: none;
+        color: #888;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        padding: 15px;
+    }
+
+    .btn-dashboard-switch {
+        background: var(--primary-green);
+        color: white;
+        border-radius: 12px;
+        padding: 10px 20px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-dashboard-switch:hover {
+        background: var(--dark-green);
+        color: white;
+        transform: scale(1.05);
+    }
+</style>
+
+<div class="dashboard-header">
+    <div class="dashboard-title">
+        <h2>Soil NPK Analytics</h2>
+        <p>Precision nutrient monitoring for optimal crop growth</p>
+    </div>
+    <a href="/dashboard/moisture" class="btn btn-dashboard-switch">
+        <i class="fas fa-droplet me-2"></i> Switch to Moisture Dashboard
+    </a>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="npk-card card-n">
+            <div class="npk-icon icon-n">N</div>
+            <div class="npk-label">Nitrogen</div>
+            <div class="d-flex align-items-baseline gap-2">
+                <span class="npk-value" id="valN">--</span>
+                <span class="npk-unit">mg/kg</span>
+            </div>
+            <div id="statusN" class="small fw-bold mt-1">Analyzing...</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="npk-card card-p">
+            <div class="npk-icon icon-p">P</div>
+            <div class="npk-label">Phosphorus</div>
+            <div class="d-flex align-items-baseline gap-2">
+                <span class="npk-value" id="valP">--</span>
+                <span class="npk-unit">mg/kg</span>
+            </div>
+            <div id="statusP" class="small fw-bold mt-1">Analyzing...</div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="npk-card card-k">
+            <div class="npk-icon icon-k">K</div>
+            <div class="npk-label">Potassium</div>
+            <div class="d-flex align-items-baseline gap-2">
+                <span class="npk-value" id="valK">--</span>
+                <span class="npk-unit">mg/kg</span>
+            </div>
+            <div id="statusK" class="small fw-bold mt-1">Analyzing...</div>
+        </div>
+    </div>
+</div>
+
+<div class="chart-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold mb-0">Nutrient Concentration Trends</h5>
+        <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-secondary active">7 Days</button>
+            <button class="btn btn-outline-secondary">30 Days</button>
+        </div>
+    </div>
+    <canvas id="npkChart" style="width:100%; max-height:400px;"></canvas>
+</div>
+
+<div class="table-card">
+    <h5 class="mb-4 fw-bold">Recent Readings History</h5>
+    <div class="table-responsive">
+        <table class="table custom-table">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Nitrogen (N)</th>
+                    <th>Phosphorus (P)</th>
+                    <th>Potassium (K)</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="npkTableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    function getStatus(val, type) {
+        let thresholds = {
+            'N': [50, 100],
+            'P': [20, 50],
+            'K': [100, 200]
+        };
+        let colors = ['#f44336', '#FF9800', '#4CAF50']; // Red, Orange, Green
+        let labels = ['Low', 'Medium', 'High'];
+        
+        let t = thresholds[type];
+        if (val < t[0]) return { label: labels[0], color: colors[0] };
+        if (val < t[1]) return { label: labels[1], color: colors[1] };
+        return { label: labels[2], color: colors[2] };
+    }
+
+    async function updateDashboard() {
+        try {
+            const response = await fetch('/api/data');
+            const data = await response.json();
+
+            if (!data || data.length === 0) return;
+
+            const labels = data.map(row => row.timestamp);
+            const nValues = data.map(row => row.nitrogen);
+            const pValues = data.map(row => row.phosphorus);
+            const kValues = data.map(row => row.potassium);
+            const latest = data[data.length - 1];
+
+            // Update Status Cards
+            document.getElementById('valN').textContent = latest.nitrogen;
+            document.getElementById('valP').textContent = latest.phosphorus;
+            document.getElementById('valK').textContent = latest.potassium;
+
+            const nStat = getStatus(latest.nitrogen, 'N');
+            const pStat = getStatus(latest.phosphorus, 'P');
+            const kStat = getStatus(latest.potassium, 'K');
+
+            document.getElementById('statusN').textContent = nStat.label;
+            document.getElementById('statusN').style.color = nStat.color;
+            document.getElementById('statusP').textContent = pStat.label;
+            document.getElementById('statusP').style.color = pStat.color;
+            document.getElementById('statusK').textContent = kStat.label;
+            document.getElementById('statusK').style.color = kStat.color;
+
+            // Update Table
+            const tableBody = document.getElementById('npkTableBody');
+            tableBody.innerHTML = '';
+            [...data].reverse().slice(0, 10).forEach(row => {
+                tableBody.innerHTML += `<tr>
+                    <td class="text-muted small">${row.timestamp}</td>
+                    <td class="fw-bold" style="color: #3b82f6;">${row.nitrogen}</td>
+                    <td class="fw-bold" style="color: #22c55e;">${row.phosphorus}</td>
+                    <td class="fw-bold" style="color: #ef4444;">${row.potassium}</td>
+                    <td><span class="badge bg-light text-dark border">Recorded</span></td>
+                </tr>`;
+            });
+
+            // Create/Update Chart
+            const ctx = document.getElementById('npkChart').getContext('2d');
+            if (window.myChart) { window.myChart.destroy(); }
+            
+            window.myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { 
+                            label: 'Nitrogen (N)', 
+                            data: nValues, 
+                            borderColor: '#3b82f6', 
+                            backgroundColor: 'rgba(59,130,246,0.05)', 
+                            fill: true, 
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointRadius: 2
+                        },
+                        { 
+                            label: 'Phosphorus (P)', 
+                            data: pValues, 
+                            borderColor: '#22c55e', 
+                            backgroundColor: 'rgba(34,197,94,0.05)', 
+                            fill: true, 
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointRadius: 2
+                        },
+                        { 
+                            label: 'Potassium (K)', 
+                            data: kValues, 
+                            borderColor: '#ef4444', 
+                            backgroundColor: 'rgba(239,68,68,0.05)', 
+                            fill: true, 
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointRadius: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { usePointStyle: true, padding: 20, font: { weight: '600' } }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(255,255,255,0.9)',
+                            titleColor: '#333',
+                            bodyColor: '#666',
+                            borderColor: '#ddd',
+                            borderWidth: 1,
+                            padding: 15,
+                            displayColors: true,
+                            usePointStyle: true
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { 
+                            beginAtZero: true,
+                            grid: { color: '#f0f0f0' }
+                        }
+                    }
+                }
+            });
+        } catch (err) {
+            console.error("Error updating dashboard:", err);
+        }
+    }
+
+    updateDashboard();
+    setInterval(updateDashboard, 30000);
+</script>
+{% endblock %}

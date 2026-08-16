@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    /* Hero Section */
+    .hero-section {
+        height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        border-radius: 30px;
+        background: linear-gradient(135deg, rgba(46,77,37,0.85), rgba(76,175,80,0.6)), 
+                    url('/static/images/farm-bg.jpg') no-repeat center center;
+        background-size: cover;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        margin-top: 20px;
+    }
+
+    /* Animated background overlay */
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: pulse 8s ease-in-out infinite;
+        pointer-events: none;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 0.6; transform: scale(1.1); }
+    }
+
+    .hero-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 60px;
+        border-radius: 24px;
+        text-align: center;
+        max-width: 600px;
+        color: white;
+        z-index: 1;
+        transition: transform 0.4s ease;
+    }
+
+    .hero-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .hero-card h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 15px;
+        text-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .hero-card p {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        margin-bottom: 40px;
+    }
+
+    .btn-hero {
+        padding: 15px 40px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        margin: 10px;
+    }
+
+    .btn-hero-primary {
+        background: #fff;
+        color: var(--primary-green);
+        border: none;
+        box-shadow: 0 4px 15px rgba(255,255,255,0.3);
+    }
+
+    .btn-hero-primary:hover {
+        background: var(--accent-green);
+        color: white;
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+
+    .btn-hero-outline {
+        background: transparent;
+        color: white;
+        border: 2px solid rgba(255,255,255,0.5);
+    }
+
+    .btn-hero-outline:hover {
+        background: rgba(255,255,255,0.1);
+        border-color: white;
+        transform: scale(1.05);
+    }
+
+    /* Stats Section */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        margin-top: -50px;
+        padding: 0 40px;
+        z-index: 2;
+        position: relative;
+    }
+
+    .feature-item {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .feature-item:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+
+    .feature-item i {
+        font-size: 2.5rem;
+        color: var(--accent-green);
+        margin-bottom: 20px;
+    }
+
+    .feature-item h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    @media (max-width: 768px) {
+        .hero-card h1 { font-size: 2.5rem; }
+        .hero-card { padding: 40px 20px; }
+        .features-grid { margin-top: 40px; padding: 0; }
+    }
+</style>
+
+<div class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-card">
+        <h1>PROJECT NPK</h1>
+        <p>Harnessing IoT for Smart, Sustainable, and Precision Farming. Monitor your soil's health in real-time.</p>
+        
+        <div class="d-flex flex-wrap justify-content-center">
+            <a href="/register" class="btn btn-hero btn-hero-primary">Get Started</a>
+            <a href="/login" class="btn btn-hero btn-hero-outline">Sign In</a>
+        </div>
+    </div>
+</div>
+
+<div class="features-grid">
+    <div class="feature-item">
+        <i class="fas fa-microchip"></i>
+        <h3>Real-time Monitoring</h3>
+        <p>Continuous data streaming from IoT sensors directly to your dashboard.</p>
+    </div>
+    <div class="feature-item">
+        <i class="fas fa-chart-line"></i>
+        <h3>Advanced Analytics</h3>
+        <p>Visualize trends and optimize your crop yield with data-driven insights.</p>
+    </div>
+    <div class="feature-item">
+        <i class="fas fa-mobile-alt"></i>
+        <h3>Accessible Anywhere</h3>
+        <p>Manage your farm from any device, anytime, with our responsive platform.</p>
+    </div>
+</div>
+
+{% endblock %}

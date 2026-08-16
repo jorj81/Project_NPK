@@ -1,0 +1,778 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+/* ================= BACKGROUND ================= */
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(-45deg, #0a4d23, #1a6b3a, #2d8c4f, #1a5e35);
+    background-size: 400% 400%;
+    animation: gradientFlow 15s ease infinite;
+    color: #ffffff;
+}
+
+@keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ================= WRAPPER ================= */
+.dashboard-wrapper {
+    background: transparent;   
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* ================= HEADER ================= */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.header h2 {
+    font-weight: 700;
+}
+
+/* ================= BUTTONS ================= */
+.btn-switch {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 10px;
+    transition: 0.3s;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.btn-switch:hover {
+    background: linear-gradient(270deg, #98ff98, #90ee90, #228b22);
+    background-size: 400% 400%;
+    animation: buttonGradient 6s ease infinite;
+    border: none;
+    color: white;
+    filter: brightness(1.15);
+    transform: translateY(-2px);
+}
+
+.btn-logout {
+    background: rgba(220, 53, 69, 0.2);
+    border: 1px solid rgba(220, 53, 69, 0.5);
+    color: #ff6b6b;
+    padding: 8px 16px;
+    border-radius: 10px;
+    transition: 0.3s;
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.btn-logout:hover {
+    background: rgba(220, 53, 69, 0.4);
+    border-color: #dc3545;
+    color: #fff;
+    filter: brightness(1.2);
+    transform: translateY(-2px);
+}
+
+@keyframes buttonGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ================= GLASS CARD ================= */
+.glass-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: 0.3s;
+}
+
+.glass-card:hover {
+    transform: translateY(-3px);
+    background: rgba(255,255,255,0.12);
+}
+
+/* ================= TABLE ================= */
+.table {
+    color: white;
+}
+
+.table thead {
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+}
+
+.table tbody tr:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+.section-title {
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+/* ================= SPARKLINE ================= */
+.spark-wrap { 
+    position: relative; 
+    height: 120px; 
+    border-radius: 12px; 
+    overflow: hidden; 
+    background: rgba(255,255,255,0.05); 
+}
+
+/* ================= CALENDAR 2026 ================= */
+@keyframes calendarFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+.cal-btn { transition: all 0.3s ease; }
+.cal-btn:hover {
+    animation: calendarFloat 2s ease-in-out infinite;
+    box-shadow: 0 20px 60px rgba(46, 213, 115, 0.4);
+}
+
+.calendar-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+    opacity: 0; transform: scale(0.8) translateY(-20px);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    max-height: 0; overflow: hidden;
+    max-width: 800px;
+}
+
+.cal-btn:hover .calendar-grid {
+    opacity: 1; transform: scale(1) translateY(0);
+    pointer-events: auto; max-height: 1200px;
+}
+
+.month-container {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 14px;
+    padding: 14px;
+    transition: all 0.3s ease;
+}
+.month-container:hover {
+    background: rgba(46,213,115,0.12);
+    border-color: rgba(46,213,115,0.35);
+}
+.month-container h4 { 
+    margin: 0 0 10px 0; 
+    font-size: 13px; 
+    font-weight: 600; 
+    text-align: center; 
+}
+
+.dates-grid {
+    display: grid; 
+    grid-template-columns: repeat(7, 1fr); 
+    gap: 4px;
+}
+
+.date-btn {
+    width: 100%; 
+    aspect-ratio: 1;
+    border: none; 
+    background: rgba(255,255,255,0.05);
+    color: #fff; 
+    font-size: 11px; 
+    font-weight: 500;
+    border-radius: 6px; 
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.date-btn:hover {
+    background: rgba(46,213,115,0.3);
+    border: 1px solid rgba(46,213,115,0.5);
+    transform: scale(1.05);
+}
+.date-btn.active {
+    background: #2ed573;
+    color: #0a4d23;
+    font-weight: 700;
+}
+
+/* ================= POPUP ================= */
+.backdrop {
+    position: fixed; inset: 0; z-index: 40;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(12px);
+    opacity: 0; transition: opacity 0.35s ease;
+    pointer-events: none;
+}
+.backdrop.active { opacity: 1; pointer-events: auto; }
+
+.glass-popup {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 50;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(30px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 24px;
+    width: 90%; max-width: 680px;
+    max-height: 85%; overflow-y: auto;
+    display: none;
+}
+.glass-popup.open { display: block; }
+
+@keyframes popupIn {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.popup-enter { animation: popupIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+.bar-track { 
+    background: rgba(255,255,255,0.1); 
+    border-radius: 6px; 
+    height: 28px; 
+    overflow: hidden; 
+}
+.bar-fill { 
+    height: 100%; 
+    border-radius: 6px; 
+    transition: width 1s ease; 
+    display: flex; 
+    align-items: center; 
+    padding-left: 10px; 
+    font-size: 12px; 
+    font-weight: 600; 
+}
+</style>
+
+<div class="dashboard-wrapper">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h2>Moisture Monitoring</h2>
+        <div style="display: flex; gap: 10px; align-items: center; margin-left: auto;">
+            <a href="/dashboard/npk" class="btn-switch">Switch to NPK Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="btn-logout">
+                <i class="fas fa-sign-out-alt me-1"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- 2026 CALENDAR BUTTON -->
+    <div class="flex justify-center mb-8">
+        <button id="calBtn" class="cal-btn flex flex-col items-center gap-3 px-8 py-4 rounded-2xl font-semibold text-lg cursor-pointer border-0 relative" style="background: linear-gradient(135deg, rgba(46,213,115,0.35), rgba(0,210,100,0.2)); border: 1px solid rgba(46,213,115,0.5); color: #fff; backdrop-filter: blur(10px); min-width: 420px;">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-calendar" style="width:26px;height:26px;"></i> 
+                <span>Soil Moisture Calendar 2026</span> 
+                <i class="fas fa-chevron-right" style="width:18px;height:18px;opacity:0.6;"></i>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </button>
+    </div>
+
+    <!-- BACKDROP & POPUP -->
+    <div id="backdrop" class="backdrop"></div>
+    <div id="popup" class="glass-popup">
+        <div class="p-8">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:rgba(46,213,115,0.25);">
+                        <i class="fas fa-tint" style="width:22px;height:22px;color:#2ed573;"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold m-0" id="popup-title">Soil Moisture Overview</h3>
+                        <p class="text-xs m-0 mt-1" id="popup-subtitle" style="color:rgba(255,255,255,0.5);">Last 7 days — updated just now</p>
+                    </div>
+                </div>
+                <button id="closePopup" class="w-9 h-9 rounded-full flex items-center justify-center border-0 cursor-pointer" style="background:rgba(255,255,255,0.1);color:#fff;"> 
+                    <i class="fas fa-times" style="width:18px;height:18px;"></i> 
+                </button>
+            </div>
+
+            <!-- STAT CARDS -->
+            <div class="grid grid-cols-3 gap-3 mb-6" id="stat-cards">
+                <div class="rounded-2xl p-4 text-center" style="background:rgba(46,213,115,0.15);border:1px solid rgba(46,213,115,0.25);">
+                    <p class="text-xs mb-1" style="color:rgba(255,255,255,0.5);">Current</p>
+                    <p class="text-3xl font-bold" style="color:#2ed573;">67%</p>
+                </div>
+                <div class="rounded-2xl p-4 text-center" style="background:rgba(255,165,0,0.12);border:1px solid rgba(255,165,0,0.25);">
+                    <p class="text-xs mb-1" style="color:rgba(255,255,255,0.5);">Average</p>
+                    <p class="text-3xl font-bold" style="color:#ffa502;">58%</p>
+                </div>
+                <div class="rounded-2xl p-4 text-center" style="background:rgba(116,185,255,0.12);border:1px solid rgba(116,185,255,0.25);">
+                    <p class="text-xs mb-1" style="color:rgba(255,255,255,0.5);">Peak</p>
+                    <p class="text-3xl font-bold" style="color:#74b9ff;">82%</p>
+                </div>
+            </div>
+
+            <!-- SPARKLINE -->
+            <div class="mb-6">
+                <p class="text-sm font-semibold mb-2" style="color:rgba(255,255,255,0.7);">Daily Trend</p>
+                <div class="spark-wrap">
+                    <canvas id="sparkCanvas" style="width:100%;height:100%;"></canvas>
+                </div>
+            </div>
+
+            <!-- ZONE BARS -->
+            <div>
+                <p class="text-sm font-semibold mb-3" style="color:rgba(255,255,255,0.7);">Zone Moisture Levels</p>
+                <div class="flex flex-col gap-3">
+                    <div><div class="flex justify-between text-xs mb-1"><span>Zone A — Field North</span><span id="zoneA-val" style="color:#2ed573;">72%</span></div><div class="bar-track"><div class="bar-fill" id="bar1" style="width:0%;background:linear-gradient(90deg,#2ed573,#7bed9f);">72%</div></div></div>
+                    <div><div class="flex justify-between text-xs mb-1"><span>Zone B — Field East</span><span id="zoneB-val" style="color:#ffa502;">55%</span></div><div class="bar-track"><div class="bar-fill" id="bar2" style="width:0%;background:linear-gradient(90deg,#ffa502,#ffc048);">55%</div></div></div>
+                    <div><div class="flex justify-between text-xs mb-1"><span>Zone C — Greenhouse</span><span id="zoneC-val" style="color:#74b9ff;">81%</span></div><div class="bar-track"><div class="bar-fill" id="bar3" style="width:0%;background:linear-gradient(90deg,#74b9ff,#a3d8ff);">81%</div></div></div>
+                    <div><div class="flex justify-between text-xs mb-1"><span>Zone D — Field South</span><span id="zoneD-val" style="color:#ff6b81;">38%</span></div><div class="bar-track"><div class="bar-fill" id="bar4" style="width:0%;background:linear-gradient(90deg,#ff6b81,#ff9fad);">38%</div></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="glass-card">
+        <h5 class="section-title">Soil Moisture Trend (2026)</h5>
+        <div class="spark-wrap" style="height:200px;">
+            <canvas id="mainChart" style="width:100%;height:100%;"></canvas>
+        </div>
+    </div>
+
+    <div class="glass-card">
+        <h5 class="section-title">Recent 7-Day Trend</h5>
+        <div class="spark-wrap">
+            <canvas id="recentSparkline" style="width:100%;height:100%;"></canvas>
+        </div>
+    </div>
+
+    <div class="glass-card">
+        <h5 class="section-title">Live Data</h5>
+        <div style="height:400px;">
+            <canvas id="moistureChart"></canvas>
+        </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="glass-card">
+        <h5 class="section-title">Recent Readings</h5>
+        <table class="table w-full text-sm">
+            <thead>
+                <tr class="text-left" style="border-bottom:2px solid rgba(255,255,255,0.2);">
+                    <th class="pb-2 font-semibold">Timestamp</th>
+                    <th class="pb-2 font-semibold">Zone</th>
+                    <th class="pb-2 font-semibold">Moisture %</th>
+                    <th class="pb-2 font-semibold">Status</th>
+                </tr>
+            </thead>
+            <tbody id="moistureTableBody"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+
+<script>
+// ================= 2026 CALENDAR DATA ✅ =================
+const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+const monthData = {
+    'January': { avg: 45, peak: 68, current: 52, days: 31 },
+    'February': { avg: 48, peak: 72, current: 55, days: 28 },
+    'March': { avg: 58, peak: 82, current: 67, days: 31 },
+    'April': { avg: 62, peak: 85, current: 70, days: 30 },
+    'May': { avg: 68, peak: 90, current: 75, days: 31 },
+    'June': { avg: 72, peak: 88, current: 78, days: 30 },
+    'July': { avg: 75, peak: 92, current: 80, days: 31 },
+    'August': { avg: 70, peak: 89, current: 76, days: 31 },
+    'September': { avg: 62, peak: 80, current: 68, days: 30 },
+    'October': { avg: 55, peak: 76, current: 60, days: 31 },
+    'November': { avg: 50, peak: 70, current: 58, days: 30 },  // ✅ FIXED: 30 days
+    'December': { avg: 42, peak: 65, current: 50, days: 31 }   // ✅ 31 days
+};
+
+// Generate date data
+const dateData = {};
+months.forEach((month, mIdx) => {
+    const days = monthData[month].days;
+    for (let d = 1; d <= days; d++) {
+        const key = `${month}-${d}`;
+        const base = monthData[month].avg;
+        const variance = 15 * Math.sin((d + mIdx * 7) / 30 * Math.PI);
+        dateData[key] = {
+            moisture: Math.max(20, Math.min(95, base + variance + (Math.random() - 0.5) * 10)),
+            zone_a: Math.max(20, Math.min(95, 70 + variance + (Math.random() - 0.5) * 10)),
+            zone_b: Math.max(20, Math.min(95, 55 + variance + (Math.random() - 0.5) * 10)),
+            zone_c: Math.max(20, Math.min(95, 80 + variance + (Math.random() - 0.5) * 10)),
+            zone_d: Math.max(20, Math.min(95, 38 + variance + (Math.random() - 0.5) * 10))
+        };
+    }
+});
+
+// ✅ PERFECT 2026 CALENDAR ALIGNMENT
+function getFirstDayOfMonth(month) {
+    const monthIdx = months.indexOf(month);
+    const date = new Date(2026, monthIdx, 1);  // 2026
+    return date.getDay();
+}
+
+// Generate 2026 Calendar ✅
+months.forEach(month => {
+    const container = document.createElement('div');
+    container.className = 'month-container';
+    
+    const title = document.createElement('h4');
+    title.innerHTML = `${month} <span style="font-size:10px;opacity:0.7;">'26</span>`;
+    container.appendChild(title);
+    
+    const datesGrid = document.createElement('div');
+    datesGrid.className = 'dates-grid';
+    
+    const firstDay = getFirstDayOfMonth(month);
+    const totalDays = monthData[month].days;
+    
+    // ✅ EMPTY CELLS (perfect alignment)
+    for (let i = 0; i < firstDay; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.style.minHeight = '28px';
+        datesGrid.appendChild(emptyCell);
+    }
+    
+    // ✅ CORRECT NUMBER OF DAYS
+    for (let d = 1; d <= totalDays; d++) {
+        const btn = document.createElement('button');
+        btn.className = 'date-btn';
+        btn.textContent = d;
+        btn.dataset.month = month;
+        btn.dataset.day = d;
+        btn.title = `${month} ${d}, 2026`;
+        btn.addEventListener('click', () => openDatePopup(month, d, 2026));
+        datesGrid.appendChild(btn);
+    }
+    
+    container.appendChild(datesGrid);
+    document.getElementById('calendarGrid').appendChild(container);
+});
+
+// Popup Functions
+function openDatePopup(month, day, year = 2026) {
+    const key = `${month}-${day}`;
+    const data = dateData[key];
+    
+    document.getElementById('popup-title').textContent = `${month} ${day}, ${year}`;
+    document.getElementById('popup-subtitle').textContent = `${month} ${day}, ${year} — daily readings`;
+    
+    const statCards = document.querySelectorAll('#stat-cards div');
+    statCards[0].innerHTML = `<p class="text-xs mb-1" style="color:rgba(255,255,255,0.5);">Current</p><p class="text-3xl font-bold" style="color:#2ed573;">${Math.round(data.moisture)}%</p>`;
+    statCards[1].innerHTML = `<p class="text-xs mb-1" style="color:rgba(255,255,255,0.5);">Monthly Avg</p><p class="text-3xl font-bold" style="color:#ffa502;">${monthData[month].avg}%</p>`;
+    statCards[2].innerHTML = `<p class="text-xs mb-1" style="color:rgba(255,255,255,0.5);">Monthly Peak</p><p class="text-3xl font-bold" style="color:#74b9ff;">${monthData[month].peak}%</p>`;
+    
+    document.getElementById('backdrop').classList.add('active');
+    document.getElementById('popup').classList.add('open', 'popup-enter');
+    
+    setTimeout(() => {
+        animateBarsForDate(data);
+        drawSparklineForDate(month, day);
+    }, 300);
+}
+
+function animateBarsForDate(data) {
+    const zones = [data.zone_a, data.zone_b, data.zone_c, data.zone_d];
+    const zoneVals = ['zoneA-val', 'zoneB-val', 'zoneC-val', 'zoneD-val'];
+    
+    ['bar1', 'bar2', 'bar3', 'bar4'].forEach((barId, i) => {
+        const bar = document.getElementById(barId);
+        const val = document.getElementById(zoneVals[i]);
+        const percent = Math.round(zones[i]);
+        bar.style.width = percent + '%';
+        bar.textContent = percent + '%';
+        val.textContent = percent + '%';
+    });
+}
+
+// Sparkline functions (same as before)
+function drawSparklineForDate(month, day) {
+    const canvas = document.getElementById('sparkCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width * 2;
+    canvas.height = rect.height * 2;
+    ctx.scale(2, 2);
+    
+    const w = rect.width, h = rect.height;
+    const key = `${month}-${day}`;
+    const dayData = dateData[key];
+    const baseValue = dayData.moisture;
+    
+    const data = [baseValue-12, baseValue-8, baseValue+5, baseValue+10, baseValue+3, baseValue-5, baseValue-10]
+        .map(v => Math.max(20, Math.min(95, v)));
+    
+    const labels = ['6am', '9am', '12pm', '3pm', '6pm', '9pm', '12am'];
+    const padX = 30, padY = 20;
+    const pts = data.map((v, i) => ({
+        x: padX + (i / 6) * (w - padX * 2),
+        y: padY + (1 - v / 100) * (h - padY * 2)
+    }));
+
+    // Grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+        const y = padY + (i / 4) * (h - padY * 2);
+        ctx.beginPath(); ctx.moveTo(padX, y); ctx.lineTo(w - padX, y); ctx.stroke();
+    }
+
+    // Fill
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, 'rgba(46,213,115,0.35)');
+    grad.addColorStop(1, 'rgba(46,213,115,0)');
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, h - padY);
+    pts.forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.lineTo(pts[6].x, h - padY);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Line
+    ctx.beginPath();
+    ctx.strokeStyle = '#2ed573';
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+    ctx.stroke();
+
+    // Dots + labels
+    pts.forEach((p, i) => {
+        ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff'; ctx.fill();
+        ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#2ed573'; ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.4)';
+        ctx.font = '10px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText(labels[i], p.x, h - 4);
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        ctx.fillText(Math.round(data[i]) + '%', p.x, p.y - 10);
+    });
+}
+
+// Main charts (same as before)
+function drawMainChart() {
+    const canvas = document.getElementById('mainChart');
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width * 2;
+    canvas.height = rect.height * 2;
+    ctx.scale(2, 2);
+    
+    const w = rect.width, h = rect.height;
+    const data = [42, 48, 55, 60, 53, 65, 70, 67, 72, 68, 75, 71];
+    const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const padX = 40, padY = 25;
+    
+    const pts = data.map((v, i) => ({
+        x: padX + (i / 11) * (w - padX * 2),
+        y: padY + (1 - v / 100) * (h - padY * 2)
+    }));
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+        const y = padY + (i / 5) * (h - padY * 2);
+        ctx.beginPath(); ctx.moveTo(padX, y); ctx.lineTo(w - padX, y); ctx.stroke();
+    }
+
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, 'rgba(116,185,255,0.3)');
+    grad.addColorStop(1, 'rgba(116,185,255,0)');
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, h - padY);
+    pts.forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.lineTo(pts[11].x, h - padY);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.strokeStyle = '#74b9ff';
+    ctx.lineWidth = 3;
+    ctx.lineJoin = 'round';
+    pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+    ctx.stroke();
+
+    pts.forEach(p => {
+        ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#74b9ff'; ctx.fill();
+    });
+
+    pts.forEach((p, i) => {
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        ctx.font = 'bold 11px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText(monthsShort[i], p.x, h - 8);
+        ctx.fillText(data[i] + '%', p.x, p.y - 12);
+    });
+}
+
+function drawRecentSparkline() {
+    const canvas = document.getElementById('recentSparkline');
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width * 2;
+    canvas.height = rect.height * 2;
+    ctx.scale(2, 2);
+    
+    const w = rect.width, h = rect.height;
+    const data = [45, 52, 60, 58, 72, 67, 70];
+    const labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const padX = 30, padY = 20;
+    const pts = data.map((v, i) => ({
+        x: padX + (i / 6) * (w - padX * 2),
+        y: padY + (1 - v / 100) * (h - padY * 2)
+    }));
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+        const y = padY + (i / 4) * (h - padY * 2);
+        ctx.beginPath(); ctx.moveTo(padX, y); ctx.lineTo(w - padX, y); ctx.stroke();
+    }
+
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, 'rgba(46,213,115,0.35)');
+    grad.addColorStop(1, 'rgba(46,213,115,0)');
+    ctx.beginPath();
+    ctx.moveTo(pts[0].x, h - padY);
+    pts.forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.lineTo(pts[6].x, h - padY);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.strokeStyle = '#2ed573';
+    ctx.lineWidth = 2.5;
+    ctx.lineJoin = 'round';
+    pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+    ctx.stroke();
+
+    pts.forEach((p, i) => {
+        ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff'; ctx.fill();
+        ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#2ed573'; ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.4)';
+        ctx.font = '10px Inter';
+        ctx.textAlign = 'center';
+        ctx.fillText(labels[i], p.x, h - 4);
+        ctx.fillStyle = 'rgba(255,255,255,0.8)';
+        ctx.fillText(data[i] + '%', p.x, p.y - 10);
+    });
+}
+
+// Controls
+document.getElementById('calBtn').addEventListener('click', () => openDatePopup('March', 15, 2026));
+document.getElementById('closePopup').addEventListener('click', () => {
+    document.getElementById('backdrop').classList.remove('active');
+    document.getElementById('popup').classList.remove('open', 'popup-enter');
+});
+document.getElementById('backdrop').addEventListener('click', () => {
+    document.getElementById('backdrop').classList.remove('active');
+    document.getElementById('popup').classList.remove('open', 'popup-enter');
+});
+
+// ================= LIVE DASHBOARD =================
+async function updateDashboard() {
+    try {
+        const response = await fetch('/api/data');
+        const data = await response.json();
+
+        const labels = data.map(row => new Date(row.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
+        const moistureValues = data.map(row => row.moisture);
+
+        // Table
+        const tableBody = document.getElementById('moistureTableBody');
+        tableBody.innerHTML = '';
+        [...data].reverse().slice(0, 8).forEach(row => {
+            const status = row.moisture > 70 ? 'Optimal' : row.moisture > 50 ? 'Moderate' : 'Low';
+            const color = row.moisture > 70 ? '#2ed573' : row.moisture > 50 ? '#ffa502' : '#ff6b81';
+            tableBody.innerHTML += `
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                    <td class="py-2">${row.timestamp}</td>
+                    <td class="py-2"><span class="px-2 py-1 rounded text-xs" style="background:rgba(46,213,115,0.2);color:#2ed573;">Zone A</span></td>
+                    <td class="py-2" style="color:${color};font-weight:600;font-size:14px;">${row.moisture}%</td>
+                    <td class="py-2"><span class="px-2 py-1 rounded-lg text-xs" style="background:${color}22;color:${color};">${status}</span></td>
+                </tr>`;
+        });
+
+        // Chart.js
+        const ctx = document.getElementById('moistureChart').getContext('2d');
+        if (window.myChart) window.myChart.destroy();
+
+        window.myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Soil Moisture (%)',
+                    data: moistureValues,
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34,197,94,0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#22c55e',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        labels: { 
+                            color: 'white',
+                            font: { size: 14, family: 'Inter' }
+                        }
+                    }
+                },
+                scales: {
+                    x: { 
+                        ticks: { color: 'rgba(255,255,255,0.8)', maxTicksLimit: 8 },
+                        grid: { color: 'rgba(255,255,255,0.1)' }
+                    },
+                    y: { 
+                        ticks: { 
+                            color: 'rgba(255,255,255,0.8)',
+                            callback: function(value) { return value + '%'; }
+                        },
+                        grid: { color: 'rgba(255,255,255,0.1)' },
+                        min: 0,
+                        max: 100
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuart'
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Dashboard update failed:', error);
+    }
+}
+
+// Initialize everything ✅
+drawMainChart();
+drawRecentSparkline();
+updateDashboard();
+setInterval(updateDashboard, 30000);
+
+console.lnog('🌱 2026 Moisture Dashboard Loaded - Calendar Perfectly Aligned!');
+</script>
+
+{% endblock %}
